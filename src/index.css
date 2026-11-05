@@ -438,3 +438,140 @@ button, summary, input { -webkit-tap-highlight-color: transparent; }
 @media(max-width:1050px) { .arena-editorial .arena-menu { grid-template-columns: minmax(0,1fr) 350px; gap: 30px; padding: 30px 24px; } }
 @media(max-width:760px) { .arena-editorial .arena-menu { display: flex; flex-direction: column; align-items: stretch; padding: 25px 18px 35px; gap: 30px; } .arena-editorial .arena-menu .arena-profile { max-width: none; padding: 22px; } .arena-editorial .arena-intro-copy h2 { font-size: clamp(43px, 10vw, 68px); } .arena-editorial .arena-preview-image { height: 250px; } .arena-editorial .arena-intro-copy { margin-top: 30px; } .arena-deed-strip { margin-bottom: 25px; } .arena-editorial .arena-preview-tabs button { padding: 11px 9px; font-size: 9px; } }
 @media(max-height:650px) and (min-width:761px) { .arena-editorial .arena-menu { align-items: start; } }
+
+/* Liquid Glass web adaptation: brand tokens and material recipes stay separate.
+   Inspired by uladluch/figma-to-swiftui; existing boards and rules are independent. */
+.arena-glass {
+  --arena-glass-surface: #203f36ed;
+  --arena-glass-paper: #f5f2e9f2;
+  --arena-glass-line: #e9f5e333;
+  --arena-glass-highlight: #ffffff5c;
+  --arena-glass-shadow: 0 18px 48px #0d241d40, inset 0 1px 0 #ffffff38;
+  --arena-glass-radius: 26px;
+  --arena-glass-control: 14px;
+  --arena-glass-text: #f5f1e5;
+  --arena-glass-muted: #c1d0c6;
+  --arena-glass-accent: #d9c797;
+  background-color: #18382e;
+}
+.arena-glass .arena-menu {
+  background: radial-gradient(ellipse at 12% 12%, #87aa8460, transparent 48%), radial-gradient(ellipse at 85% 75%, #b7a17a26, transparent 48%), #1c3c32;
+  gap: clamp(32px, 5vw, 78px);
+}
+.arena-glass .arena-intro { color: var(--arena-glass-text); }
+.arena-glass .arena-wordmark > span:first-of-type { border-radius: 12px; }
+.arena-glass .arena-intro-copy h2 { line-height: 1.07; }
+.arena-glass .arena-intro-copy h2 em { color: var(--arena-glass-accent); }
+.arena-glass .arena-intro-copy > p { color: var(--arena-glass-muted); font-size: .875rem; }
+.arena-glass .arena-intro-copy > .arena-kicker { color: #d9cba9; }
+.arena-glass .arena-preview,
+.arena-glass .arena-menu .arena-profile,
+.arena-glass .arena-guide,
+.arena-glass .arena-lobby > div,
+.arena-glass .arena-lobby > .grid > div,
+.arena-glass .game-sidebar,
+.arena-glass .game-sidebar > div,
+.arena-glass .game-actionbar,
+.arena-glass .game-workspace .game-header,
+.arena-glass .board-toolbar,
+.arena-glass .board-inspector,
+.arena-glass .board-caption,
+.arena-glass .game-more-menu,
+.arena-glass .game-notice,
+.arena-glass .game-dialog-overlay > div {
+  border: 1px solid var(--arena-glass-line);
+  border-top-color: var(--arena-glass-highlight);
+  border-radius: var(--arena-glass-radius);
+  background: var(--arena-glass-surface);
+  box-shadow: var(--arena-glass-shadow);
+}
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .arena-glass { --arena-glass-surface: #203f36c9; --arena-glass-paper: #f5f2e9e8; }
+  .arena-glass :is(.arena-preview, .arena-profile, .arena-guide, .game-header, .game-actionbar, .board-toolbar, .board-inspector, .board-caption, .game-more-menu, .game-notice),
+  .arena-glass .arena-lobby > div:not(.grid),
+  .arena-glass .arena-lobby > .grid > div,
+  .arena-glass .game-sidebar > div,
+  .arena-glass .game-dialog-overlay > div {
+    -webkit-backdrop-filter: blur(22px) saturate(125%);
+    backdrop-filter: blur(22px) saturate(125%);
+  }
+}
+.arena-glass .arena-preview { overflow: hidden; }
+.arena-glass .arena-preview-tabs { background: transparent; border: 0; padding: 8px; gap: 5px; }
+.arena-glass .arena-preview-tabs button { flex: 1; justify-content: center; border: 0; border-radius: 999px; color: #d3dfd6; min-height: 44px; }
+.arena-glass .arena-preview-tabs button[aria-pressed='true'] { background: #ecf2e4; color: #243f32; box-shadow: 0 2px 7px #0b241f35, inset 0 1px #fff; }
+.arena-glass .arena-preview-image { background: #183329; }
+.arena-glass .arena-preview-image > span { border: 1px solid #ffffff42; border-radius: 999px; background: #eef1e6ed; color: #294538; }
+.arena-glass .arena-preview-caption { background: transparent; padding: 18px 20px; }
+.arena-glass .arena-preview-caption .arena-kicker { color: #e2d4b2; }
+.arena-glass .arena-preview-caption p { color: #ccd8ce; font-size: .75rem; }
+.arena-glass .arena-preview-number { color: #d0c49e; }
+.arena-glass .arena-intro-footer { font-size: .6875rem; color: #d0dacf; }
+.arena-glass .arena-intro-footer button { border: 1px solid var(--arena-glass-line); border-radius: 999px; padding: 10px 14px; min-height: 44px; text-decoration: none; background: #e7f2df12; }
+.arena-glass .arena-menu .arena-profile,
+.arena-glass .arena-guide { background: var(--arena-glass-paper); border-color: #ffffff80; color: #294336; box-shadow: 0 24px 60px #0b241d4d, inset 0 1px #fff; }
+.arena-glass .arena-profile-heading h1 { font-size: 2.4rem; }
+.arena-glass .arena-profile-heading p { font-size: .75rem; }
+.arena-glass .arena-profile label { font-size: .625rem; }
+.arena-glass .arena-selected-token { border-color: #3d584b24; }
+.arena-glass .arena-selected-token > .arena-token-art { border-radius: 17px; background: #fff9; border-color: #fff; }
+.arena-glass .arena-profile input { background: #ffffff85; border: 1px solid #365d392e; border-radius: var(--arena-glass-control); min-height: 44px; font-size: 1rem; }
+.arena-glass .arena-profile input:focus { outline: 2px solid #426653; outline-offset: 2px; }
+.arena-glass .arena-profile .grid button { border-radius: 12px; background: #ffffff6e; border-color: #3b584024; }
+.arena-glass .arena-profile .grid button[aria-pressed='true'] { background: #d3e0ce; border-color: #496c52; box-shadow: inset 0 1px #ffffffb3; }
+.arena-glass .arena-profile .space-y-3 > button { border-radius: 999px; min-height: 48px; background: #2b503d; box-shadow: 0 4px 12px #1b3f3024, inset 0 1px #ffffff26; }
+.arena-glass .arena-profile .flex.gap-2 > button,
+.arena-glass .arena-profile .border-t button { border-radius: var(--arena-glass-control); min-height: 44px; }
+.arena-glass .arena-code-download { line-height: 1.6; font-size: .6875rem; }
+.arena-glass .arena-guide { border-radius: 30px; }
+.arena-glass .arena-guide-done { border-radius: 999px; min-height: 44px; }
+.arena-glass .arena-lobby { color: var(--arena-glass-text); }
+.arena-glass .arena-lobby > .grid { background: transparent; box-shadow: none; border: 0; }
+.arena-glass .arena-lobby button,
+.arena-glass .arena-lobby input,
+.arena-glass .arena-lobby select { border-radius: var(--arena-glass-control); min-height: 44px; }
+.arena-glass .arena-lobby button.bg-gradient-to-r { background: #dce7cf; }
+.arena-glass .game-workspace { background: radial-gradient(ellipse at 80% 15%, #59755830, transparent 60%), #172e26; }
+.arena-glass .game-workspace .game-header { border-radius: 0 0 22px 22px; }
+.arena-glass .game-brand-name { border-radius: 6px; }
+.arena-glass .game-actionbar { border-radius: 20px; }
+.arena-glass :is(.view-switch, .board-toolbar) { border-radius: 999px; padding: 4px; }
+.arena-glass :is(.view-switch, .board-toolbar) button { border-radius: 999px; min-height: 36px; }
+.arena-glass :is(.view-switch, .board-toolbar) button[aria-pressed='true'] { background: #dce7cf; color: #263f31; box-shadow: inset 0 1px #fff9; }
+.arena-glass .header-icon-button { border-radius: 50%; min-width: 36px; min-height: 36px; background: #ffffff09; }
+.arena-glass .room-code { border-radius: 999px; }
+.arena-glass .board-caption { border-radius: 999px; }
+.arena-glass .game-dialog-overlay { background-color: #10251dc4; }
+.arena-glass .game-dialog-overlay > div { overflow: hidden; }
+.arena-glass .trade-property-row { border-radius: 12px; }
+.arena-glass button { transition: transform .18s ease, opacity .18s ease; }
+.arena-glass button:active:not(:disabled) { transform: scale(.97); }
+.arena-glass button:disabled { cursor: default; }
+.arena-glass :is(button, a, summary, select):focus-visible { outline: 2px solid #e3cd8f; outline-offset: 4px; }
+.arena-glass .arena-profile :is(button, a):focus-visible,
+.arena-glass .arena-guide button:focus-visible { outline-color: #355d45; }
+@media (hover: hover) {
+  .arena-glass :is(.header-icon-button, .arena-intro-footer button):hover { background: #ffffff20; }
+}
+@media (max-width: 760px) {
+  .arena-glass .arena-menu { padding: 24px 16px 36px; }
+  .arena-glass .arena-menu .arena-profile { padding: 24px 20px; }
+  .arena-glass .arena-preview-tabs button { font-size: .6875rem; padding-inline: 8px; }
+  .arena-glass .arena-intro-footer { align-items: flex-start; }
+}
+@media (pointer: coarse) {
+  .arena-glass .header-icon-button { min-width: 44px; min-height: 44px; }
+  .arena-glass :is(.view-switch, .board-toolbar) button { min-height: 44px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .arena-glass button, .arena-glass .arena-preview-image img { transition: none; }
+  .arena-glass button:active:not(:disabled) { transform: none; }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .arena-glass { --arena-glass-surface: #203f36; --arena-glass-paper: #f5f2e9; }
+  .arena-glass * { -webkit-backdrop-filter: none; backdrop-filter: none; }
+}
+@media (forced-colors: active) {
+  .arena-glass button[aria-pressed='true'] { outline: 2px solid Highlight; }
+  .arena-glass .arena-profile input { background: Field; color: FieldText; }
+}

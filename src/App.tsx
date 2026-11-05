@@ -428,7 +428,7 @@ export default function App() {
 
   return (
     <div
-      className="arena-materials arena-editorial app-shell overflow-hidden bg-slate-950 text-slate-100 flex flex-col font-sans select-none selection:bg-amber-500 selection:text-slate-950 relative"
+      className="arena-materials arena-editorial arena-glass app-shell overflow-hidden bg-slate-950 text-slate-100 flex flex-col font-sans select-none selection:bg-amber-500 selection:text-slate-950 relative"
       style={{
         backgroundImage: `linear-gradient(to bottom, rgba(6, 9, 18, 0.88), rgba(6, 9, 18, 0.95)), url(${ASSETS.penthouseBg})`,
         backgroundSize: 'cover',
