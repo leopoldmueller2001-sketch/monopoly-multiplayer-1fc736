@@ -92,7 +92,7 @@ export const Lobby: React.FC<LobbyProps> = ({
     <div className="arena-lobby w-full max-w-4xl mx-auto p-4 md:p-6 flex flex-col gap-6">
       {copyError && <p role="status" className="rounded-xl border border-amber-500/40 bg-slate-900 p-3 text-sm text-amber-200">{copyError}</p>}
       {/* Header bar */}
-      <div className="flex flex-wrap items-center justify-between gap-4 bg-slate-900 border border-slate-800 text-white p-5 rounded-2xl shadow-xl">
+      <div className="arena-lobby-header flex flex-wrap items-center justify-between gap-4 bg-slate-900 border border-slate-800 text-white p-5 rounded-2xl shadow-xl">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-amber-500 flex items-center justify-center text-xl shadow-md">
             <TokenArt token="🎩" />
@@ -104,7 +104,7 @@ export const Lobby: React.FC<LobbyProps> = ({
         </div>
 
         {/* Raumcode Badge */}
-        <div className="flex items-center gap-2 bg-slate-800/80 border border-slate-700 px-4 py-2 rounded-xl">
+        <div className="arena-lobby-invite-row flex items-center gap-2 bg-slate-800/80 border border-slate-700 px-4 py-2 rounded-xl">
           <div className="text-right">
             <div className="text-[10px] uppercase font-bold tracking-widest text-slate-400">Raumcode</div>
             <div className="text-2xl font-black font-mono tracking-wider text-amber-400">{lobby.roomId}</div>

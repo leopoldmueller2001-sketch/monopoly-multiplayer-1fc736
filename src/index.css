@@ -789,3 +789,14 @@ button, summary, input { -webkit-tap-highlight-color: transparent; }
   .arena-classic-3d .board-toolbar button span { font-size: 9px; }
   .arena-classic-3d .board-inspector { top: auto; bottom: 64px; left: 12px; right: auto; max-width: calc(100% - 88px); }
 }
+
+/* Place invitation controls below the title, away from the upper screen edge. */
+.arena-lobby-scroll { overscroll-behavior-y: contain; padding-top: max(24px, env(safe-area-inset-top)); padding-bottom: max(24px, env(safe-area-inset-bottom)); }
+.arena-apple .arena-lobby .arena-lobby-header { flex-direction: column; align-items: stretch; gap: 28px; }
+.arena-lobby-invite-row { align-self: stretch; flex-wrap: wrap; gap: 12px; }
+.arena-lobby-invite-row > div { margin-right: auto; text-align: left; }
+.arena-apple .arena-lobby .arena-lobby-invite-row button { min-height: 48px; padding: 12px 18px; margin-left: 0; touch-action: manipulation; }
+@media (max-width: 540px) {
+  .arena-lobby-invite-row > div { flex-basis: 100%; padding-bottom: 8px; }
+  .arena-apple .arena-lobby .arena-lobby-invite-row button { flex: 1 1 140px; justify-content: center; }
+}

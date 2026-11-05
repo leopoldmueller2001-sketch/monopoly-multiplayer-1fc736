@@ -588,7 +588,7 @@ export default function App() {
 
       {/* Screen 2: LOBBY */}
       {view === 'LOBBY' && lobbyData && currentPlayer && (
-        <div className="flex-1 flex items-center justify-center p-4 overflow-y-auto">
+        <div className="arena-lobby-scroll flex-1 flex items-start justify-center p-4 overflow-y-auto min-h-0">
           <Lobby
             lobby={lobbyData}
             currentPlayer={currentPlayer}
