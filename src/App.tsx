@@ -209,7 +209,7 @@ export default function App() {
           setCurrentPlayer(res.player);
           setView('LOBBY');
         } else {
-          triggerError(res.error || 'Failed to create room');
+          triggerError(res.error || 'Der Raum konnte nicht erstellt werden.');
         }
       }
     );
@@ -219,7 +219,7 @@ export default function App() {
   const handleJoinRoom = () => {
     if (!socket) return;
     if (!joinRoomCode.trim()) {
-      triggerError('Please enter a 4-letter Room Code');
+      triggerError('Gib den Raumcode aus deiner Einladung ein.');
       return;
     }
     playSound('click');
@@ -242,7 +242,7 @@ export default function App() {
             setView('LOBBY');
           }
         } else {
-          triggerError(res.error || 'Failed to join room');
+          triggerError(res.error || 'Der Beitritt ist fehlgeschlagen. Prüfe den Raumcode.');
         }
       }
     );
@@ -277,7 +277,7 @@ export default function App() {
             });
           });
         } else {
-          triggerError(res.error || 'Could not start quick match');
+          triggerError(res.error || 'Das Schnellspiel konnte nicht gestartet werden.');
         }
       }
     );
@@ -290,8 +290,11 @@ export default function App() {
   };
 
   const handleUpdateProfile = (token: PlayerToken, color: string, name: string) => {
-    if (!socket || !lobbyData) return;
-    socket.emit('lobby:update_player', { roomId: lobbyData.roomId, token, color, name });
+    if (!socket || !lobbyData) return Promise.resolve(false);
+    return new Promise<boolean>(resolve => socket.emit('lobby:update_player', { roomId: lobbyData.roomId, token, color, name }, (result: any) => {
+      if (!result.success) triggerError(result.error || 'Dein Profil konnte nicht gespeichert werden.');
+      resolve(Boolean(result.success));
+    }));
   };
 
   const handleUpdateSettings = (settings: { maxPlayers: number; turnSeconds: number; boardSize?: number }) => {
@@ -313,7 +316,7 @@ export default function App() {
     if (!socket || !lobbyData) return;
     socket.emit('game:start', { roomId: lobbyData.roomId }, (res: any) => {
       if (res && !res.success) {
-        triggerError(res.error || 'Failed to start game');
+        triggerError(res.error || 'Die Runde konnte nicht gestartet werden.');
       }
     });
   };

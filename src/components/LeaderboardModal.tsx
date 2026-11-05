@@ -36,9 +36,9 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({ isOpen, onCl
             <Trophy size={28} />
             <div>
               <h2 className="text-xl font-black text-amber-300 tracking-wide uppercase">
-                Global High Rollers
+                Die Rangliste
               </h2>
-              <p className="text-xs text-slate-400">Global Leaderboard</p>
+              <p className="text-xs text-slate-400">Ergebnisse aller gespielten Runden</p>
             </div>
           </div>
           <button
@@ -57,14 +57,14 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({ isOpen, onCl
           {loading ? (
             <div className="flex flex-col items-center justify-center py-12 gap-3">
               <div className="w-8 h-8 border-3 border-amber-400 border-t-transparent rounded-full animate-spin" />
-              <span className="text-xs text-slate-400">Loading leaderboard...</span>
+              <span className="text-xs text-slate-400">Rangliste wird geladen …</span>
             </div>
           ) : error ? (<p role="alert" className="text-sm text-red-300">{error}</p>) : records.length === 0 ? (
             <div className="text-center py-10 space-y-2">
               <TokenArt token="🎩" />
-              <p className="text-sm font-bold text-slate-300">No Hall of Fame records yet!</p>
+              <p className="text-sm font-bold text-slate-300">Hier beginnt eure Siegesserie.</p>
               <p className="text-xs text-slate-500">
-                Win your first match to claim the #1 spot in the cloud database!
+                Beende eine Runde, damit ihre Ergebnisse hier erscheinen.
               </p>
             </div>
           ) : (
@@ -99,7 +99,7 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({ isOpen, onCl
                     <div>
                       <span className="font-bold text-white text-sm block">{entry.username}</span>
                       <span className="text-[11px] text-slate-400">
-                        {entry.gamesPlayed} {entry.gamesPlayed === 1 ? 'game' : 'games'} played
+                        {entry.gamesPlayed} {entry.gamesPlayed === 1 ? 'Runde' : 'Runden'} gespielt
                       </span>
                     </div>
                   </div>
@@ -109,7 +109,7 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({ isOpen, onCl
                       ${entry.totalCashEarned?.toLocaleString() || '1,500'}
                     </span>
                     <span className="text-[10px] text-amber-400 font-bold uppercase tracking-wider">
-                      {entry.wins} {entry.wins === 1 ? 'Victory' : 'Victories'}
+                      {entry.wins} {entry.wins === 1 ? 'Sieg' : 'Siege'}
                     </span>
                   </div>
                 </div>
@@ -122,7 +122,7 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({ isOpen, onCl
         <div className="p-4 bg-slate-950/80 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-400">
           <span className="flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span>Global match results</span>
+            <span>Abgeschlossene Runden</span>
           </span>
           <button
             onClick={() => {
@@ -131,7 +131,7 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({ isOpen, onCl
             }}
             className="cursor-pointer px-4 py-1.5 bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold rounded-lg text-xs uppercase transition-colors"
           >
-            Close
+            Schließen
           </button>
         </div>
       </div>

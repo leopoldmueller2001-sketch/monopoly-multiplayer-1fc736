@@ -756,3 +756,36 @@ button, summary, input { -webkit-tap-highlight-color: transparent; }
 .arena-apple .game-dialog-overlay h2 { letter-spacing: -.025em; text-transform: none; }
 .arena-apple .arena-lobby [class*='bg-amber-950'] { background-color: #eaf3ff; }
 .arena-apple .game-workspace .game-header .game-brand-name { color: #f5f5f7; }
+
+/* Lobby orientation and classic 3D controls. */
+.arena-apple .arena-lobby { max-width: 1120px; }
+.arena-lobby-status { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 8px 4px; }
+.arena-lobby-eyebrow { font-size: 9px; font-weight: 600; letter-spacing: .09em; color: #86868b; }
+.arena-lobby-status h2 { margin: 7px 0 9px; font-size: 28px; font-weight: 650; letter-spacing: -.045em; color: #1d1d1f; }
+.arena-lobby-status p { max-width: 560px; font-size: 13px; line-height: 1.6; color: #6e6e73; overflow-wrap: anywhere; }
+.arena-lobby-summary { display: flex; flex-shrink: 0; gap: 24px; }
+.arena-lobby-summary > span { font-size: 10px; color: #6e6e73; }
+.arena-lobby-summary strong { display: block; margin-bottom: 4px; font-size: 20px; font-weight: 600; letter-spacing: -.035em; color: #1d1d1f; }
+.arena-lobby-open-seat { display: flex; gap: 12px; align-items: center; margin-top: 14px; padding: 18px 14px; border: 1px dashed #d2d2d7; border-radius: 14px; color: #86868b; }
+.arena-lobby-open-seat > span { color: #515154; font-size: 12px; }
+.arena-lobby-open-seat small { display: block; margin-top: 4px; color: #6e6e73; line-height: 1.5; font-size: 11px; }
+.arena-lobby-timer-note { margin-top: 12px; color: #6e6e73; line-height: 1.6; font-size: 11px; }
+.arena-apple .arena-lobby [class*='justify-between'] { min-width: 0; }
+.arena-apple .arena-lobby .font-semibold.text-sm.text-white { overflow-wrap: anywhere; }
+.arena-apple .arena-lobby > div:first-of-type { flex-wrap: wrap; }
+.arena-apple .arena-lobby > div:first-of-type > div:last-child { flex-wrap: wrap; }
+.arena-classic-3d .board-toolbar { max-width: calc(100% - 28px); flex-wrap: wrap; }
+.arena-classic-zoom { position: absolute; right: 16px; bottom: 64px; display: flex; flex-direction: column; gap: 2px; border: 1px solid #ffffff26; border-radius: 999px; padding: 5px; background: #2c2c2eef; box-shadow: 0 4px 16px #0002; }
+.arena-classic-zoom button { display: grid; place-items: center; width: 40px; height: 40px; color: #f5f5f7; border-radius: 50%; cursor: pointer; }
+.arena-classic-zoom button:hover:not(:disabled) { background: #ffffff15; }
+.arena-classic-zoom button:disabled { opacity: .4; }
+.arena-classic-error { position: absolute; z-index: 2; max-width: 320px; padding: 24px; background: #2c2c2e; border: 1px solid #ffffff26; border-radius: 20px; color: #f5f5f7; line-height: 1.6; text-align: center; }
+.arena-classic-error p { color: #c7c7cc; font-size: 13px; margin-top: 10px; }
+@media (max-width: 760px) {
+  .arena-lobby-status { flex-direction: column; align-items: stretch; gap: 20px; }
+  .arena-lobby-summary { justify-content: space-between; gap: 12px; }
+  .arena-apple .arena-lobby { padding: 8px 0; }
+  .arena-classic-3d .board-toolbar button { padding-inline: 8px; }
+  .arena-classic-3d .board-toolbar button span { font-size: 9px; }
+  .arena-classic-3d .board-inspector { top: auto; bottom: 64px; left: 12px; right: auto; max-width: calc(100% - 88px); }
+}

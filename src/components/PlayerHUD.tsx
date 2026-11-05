@@ -186,7 +186,7 @@ export const ActionBar: React.FC<ActionBarProps> = ({
             {!activity && gameState.phase === 'RESOLVING_CARD' && 'Bestätige die gezogene Ereigniskarte.'}
             {!activity && gameState.phase === 'END_TURN' &&
               (isMyTurn ? 'Verwalte deinen Besitz oder beende deinen Zug.' : 'Der Zug wird abgeschlossen …')}
-            {gameState.phase === 'GAME_OVER' && 'Champion declared!'}
+            {gameState.phase === 'GAME_OVER' && 'Die Runde ist beendet.'}
           </div>
         </div>
       </div>
