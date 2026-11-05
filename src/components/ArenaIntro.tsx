@@ -30,7 +30,7 @@ export function ArenaIntro() {
     return () => { document.removeEventListener('keydown', onKey); previous?.focus(); };
   }, [rulesOpen]);
   const board = previews[selected];
-  return <section className="arena-intro" aria-label="Willkommen in der Arena">
+  return <section id="arena-welcome" className="arena-intro" aria-label="Willkommen in der Arena">
     <div className="arena-wordmark"><Castle size={25} /><span>MONOPOLY <small>REALTIME ARENA</small></span><span className="arena-edition">DIE DIGITALE SPIELED­ITION<br />FÜR GROSSE PLÄNE.</span></div>
     <div className="arena-intro-copy"><span className="arena-kicker">IMMOBILIEN. VERHANDLUNGEN. EIN BISSCHEN GLÜCK.</span><h2>Freunde am Tisch.<br /><em>Alles auf LOS.</em></h2><p>Straßen kaufen. Miete kassieren. Um den letzten Deal feilschen. Hol deine Freunde dazu — gespielt wird direkt im Browser.</p></div>
     <div className="arena-deed-strip" aria-hidden="true"><span>BADSTRASSE<small>€ 60</small></span><span>BAHNHOF<small>€ 200</small></span><span>SCHLOSSALLEE<small>€ 400</small></span></div>

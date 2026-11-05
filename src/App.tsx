@@ -428,7 +428,7 @@ export default function App() {
 
   return (
     <div
-      className="arena-materials arena-editorial arena-glass app-shell overflow-hidden bg-slate-950 text-slate-100 flex flex-col font-sans select-none selection:bg-amber-500 selection:text-slate-950 relative"
+      className="arena-materials arena-editorial arena-glass arena-apple app-shell overflow-hidden bg-slate-950 text-slate-100 flex flex-col font-sans select-none selection:bg-amber-500 selection:text-slate-950 relative"
       style={{
         backgroundImage: `linear-gradient(to bottom, rgba(6, 9, 18, 0.88), rgba(6, 9, 18, 0.95)), url(${ASSETS.penthouseBg})`,
         backgroundSize: 'cover',
@@ -440,8 +440,13 @@ export default function App() {
       {/* Screen 1: MAIN MENU (Maximized Visual Presentation) */}
       {view === 'MENU' && (
         <div className="arena-menu flex-1 overflow-y-auto">
+          <nav className="arena-apple-nav" aria-label="Startseite">
+            <a href="#arena-welcome" className="arena-apple-brand"><Crown size={19} aria-hidden="true" /> Monopoly<span>Arena</span></a>
+            <span className="arena-apple-nav-detail">Das Brettspiel. Zusammen im Browser.</span>
+            <a className="arena-apple-nav-action" href="#arena-profile">Jetzt spielen <ArrowRight size={14} aria-hidden="true" /></a>
+          </nav>
           <ArenaIntro />
-          <div className="arena-profile w-full max-w-lg bg-slate-900/90 border border-slate-800 rounded-3xl p-6 md:p-8 shadow-2xl relative overflow-hidden backdrop-blur-md">
+          <div id="arena-profile" tabIndex={-1} className="arena-profile w-full max-w-lg bg-slate-900/90 border border-slate-800 rounded-3xl p-6 md:p-8 shadow-2xl relative overflow-hidden backdrop-blur-md">
             <div className="arena-profile-heading">
               <span className="arena-kicker">DEIN PLATZ AM TISCH</span>
               <h1>Spielst du mit?</h1>
