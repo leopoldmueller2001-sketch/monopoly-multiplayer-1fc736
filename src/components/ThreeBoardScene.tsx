@@ -1,11 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 import { BOARD_TILES } from '../data/monopolyBoard';
 import { BoardTile, GameState, PlayerToken } from '../types/game';
 import { getCardDeckMaterials, getFeltTexture } from '../utils/tileTextureGenerator';
 import { createBoardTileMesh } from '../utils/propertyModel';
 import { ASSETS } from '../assets/assetMap';
-import { Camera, LocateFixed, Move, ScanLine, Dices, RotateCcw } from 'lucide-react';
+import { Camera, LocateFixed, Move, ScanLine, Dices, RotateCcw, ZoomIn, ZoomOut } from 'lucide-react';
 import { tokenRestY, tokenSpreadOffset } from '../utils/boardLayout';
 import { movementPath, STEP_DURATION } from '../utils/gamePresentation';
 import { playSound } from '../utils/sound';
@@ -29,10 +31,11 @@ export const ThreeBoardScene: React.FC<ThreeBoardSceneProps> = ({
 }) => {
   const mountRef = useRef<HTMLDivElement>(null);
   const [cameraMode, setCameraMode] = useState<'angled' | 'top' | 'focus'>('angled');
+  const [webglError, setWebglError] = useState(false);
   const [hoveredTile, setHoveredTile] = useState<BoardTile | null>(null);
 
-  const liveRef = useRef({ rolling: isRolling, closeup: isDiceCloseup, dice: diceValues || gameState.dice, localPlayerId });
-  liveRef.current = { rolling: isRolling, closeup: isDiceCloseup, dice: diceValues || gameState.dice, localPlayerId };
+  const liveRef = useRef({ rolling: isRolling, closeup: isDiceCloseup, dice: diceValues || gameState.dice, localPlayerId, onTileClick });
+  liveRef.current = { rolling: isRolling, closeup: isDiceCloseup, dice: diceValues || gameState.dice, localPlayerId, onTileClick };
   const ownMarkerRef = useRef<THREE.Group | null>(null);
   const sceneRef = useRef<THREE.Scene | null>(null);
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
@@ -61,6 +64,13 @@ export const ThreeBoardScene: React.FC<ThreeBoardSceneProps> = ({
   const hoverHighlightMeshRef = useRef<THREE.Mesh | null>(null);
   const raycasterRef = useRef(new THREE.Raycaster());
   const mouseCoordsRef = useRef(new THREE.Vector2());
+
+  const zoomCamera = (factor: number) => {
+    if (liveRef.current.closeup) return;
+    const offset = cameraPosTargetRef.current.clone().sub(cameraTargetRef.current);
+    const distance = THREE.MathUtils.clamp(offset.length() * factor, 5, 40);
+    cameraPosTargetRef.current.copy(cameraTargetRef.current).add(offset.setLength(distance));
+  };
 
   // Helper to map tile index 0-39 to 3D board coordinates (x, z)
   const getTile3DPosition = (tileId: number): { x: number; z: number; rotation: number } => {
@@ -370,8 +380,8 @@ export const ThreeBoardScene: React.FC<ThreeBoardSceneProps> = ({
 
     // 1. Scene
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x151e1a);
-    scene.fog = new THREE.FogExp2(0x151e1a, 0.015);
+    scene.background = new THREE.Color(0x202023);
+    scene.fog = new THREE.FogExp2(0x202023, 0.015);
     sceneRef.current = scene;
 
     // 2. Camera
@@ -381,22 +391,32 @@ export const ThreeBoardScene: React.FC<ThreeBoardSceneProps> = ({
     cameraRef.current = camera;
 
     // 3. Renderer
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
+    let renderer: THREE.WebGLRenderer;
+    try { renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' }); }
+    catch { setWebglError(true); return; }
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFShadowMap;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.15;
+    renderer.toneMappingExposure = 1.0;
+    // Local studio reflections give the metallic tokens a readable silhouette.
+    const environmentScene = new RoomEnvironment();
+    const pmrem = new THREE.PMREMGenerator(renderer);
+    const environment = pmrem.fromScene(environmentScene, 0.04);
+    scene.environment = environment.texture;
+    environmentScene.dispose();
+    pmrem.dispose();
     container.innerHTML = '';
     container.appendChild(renderer.domElement);
     rendererRef.current = renderer;
 
     // 4. Lighting Rig
-    const ambientLight = new THREE.AmbientLight(0xfff8ed, 1.4);
+    const ambientLight = new THREE.HemisphereLight(0xf0f4ff, 0x524735, 1.8);
     scene.add(ambientLight);
 
-    const mainSun = new THREE.DirectionalLight(0xfff1dc, 3.0);
+    const mainSun = new THREE.DirectionalLight(0xfff5e8, 2.4);
     mainSun.position.set(12, 24, 14);
     mainSun.castShadow = true;
     mainSun.shadow.mapSize.width = 2048;
@@ -407,15 +427,17 @@ export const ThreeBoardScene: React.FC<ThreeBoardSceneProps> = ({
     mainSun.shadow.camera.right = 15;
     mainSun.shadow.camera.top = 15;
     mainSun.shadow.camera.bottom = -15;
-    mainSun.shadow.bias = -0.0005;
+    mainSun.shadow.bias = -0.0003;
+    mainSun.shadow.normalBias = 0.025;
+    mainSun.shadow.radius = 3;
     scene.add(mainSun);
 
     // Warm gold and sapphire rim lights
-    const rimGold = new THREE.PointLight(0xf59e0b, 3.5, 35);
+    const rimGold = new THREE.PointLight(0xffe2b8, 2.0, 35);
     rimGold.position.set(-14, 10, -14);
     scene.add(rimGold);
 
-    const rimCyan = new THREE.PointLight(0x0284c7, 2.5, 35);
+    const rimCyan = new THREE.PointLight(0xdde8ff, 2.0, 35);
     rimCyan.position.set(14, 10, -14);
     scene.add(rimCyan);
 
@@ -424,7 +446,7 @@ export const ThreeBoardScene: React.FC<ThreeBoardSceneProps> = ({
 
     // Mahogany Wooden Table Base
     const tableBase = new THREE.Mesh(
-      new THREE.BoxGeometry(19.8, 0.8, 19.8),
+      new RoundedBoxGeometry(19.8, 0.8, 19.8, 3, 0.18),
       new THREE.MeshStandardMaterial({
         color: 0x1f0f04,
         roughness: 0.45,
@@ -436,9 +458,9 @@ export const ThreeBoardScene: React.FC<ThreeBoardSceneProps> = ({
     boardGroup.add(tableBase);
 
     // Brass Corner Inlays on Wooden Base
-    const cornerBracketGeo = new THREE.BoxGeometry(1.6, 0.85, 1.6);
+    const cornerBracketGeo = new RoundedBoxGeometry(1.6, 0.85, 1.6, 2, 0.12);
     const cornerBracketMat = new THREE.MeshStandardMaterial({
-      color: 0xd97706,
+      color: 0xbba47b,
       metalness: 0.95,
       roughness: 0.2,
     });
@@ -456,9 +478,9 @@ export const ThreeBoardScene: React.FC<ThreeBoardSceneProps> = ({
 
     // Beveled Gold Inlay Frame
     const goldFrame = new THREE.Mesh(
-      new THREE.BoxGeometry(18.5, 0.85, 18.5),
+      new RoundedBoxGeometry(18.5, 0.85, 18.5, 3, 0.12),
       new THREE.MeshStandardMaterial({
-        color: 0xd97706,
+        color: 0xbba47b,
         metalness: 0.95,
         roughness: 0.15,
       })
@@ -483,7 +505,7 @@ export const ThreeBoardScene: React.FC<ThreeBoardSceneProps> = ({
     const brass = new THREE.MeshStandardMaterial({ color: 0xbda16c, metalness: 0.8, roughness: 0.32 });
     const stone = new THREE.MeshStandardMaterial({ color: 0xd6cbb7, roughness: 0.65 });
     const darkWood = new THREE.MeshStandardMaterial({ color: 0x30241c, roughness: 0.55 });
-    const plinth = new THREE.Mesh(new THREE.BoxGeometry(20.2, 0.22, 20.2), darkWood);
+    const plinth = new THREE.Mesh(new RoundedBoxGeometry(20.2, 0.22, 20.2, 2, 0.08), darkWood);
     plinth.position.y = -0.88;
     plinth.castShadow = true;
     boardGroup.add(plinth);
@@ -513,7 +535,7 @@ export const ThreeBoardScene: React.FC<ThreeBoardSceneProps> = ({
       tower.position.set((index - 3) * 0.7, 0.08, -4.8);
       boardGroup.add(tower);
     });
-    const ground = new THREE.Mesh(new THREE.PlaneGeometry(180, 180), new THREE.MeshStandardMaterial({ color: 0x171e1b, roughness: 0.95 }));
+    const ground = new THREE.Mesh(new THREE.PlaneGeometry(180, 180), new THREE.MeshStandardMaterial({ color: 0x242426, roughness: 0.95 }));
     ground.rotation.x = -Math.PI / 2;
     ground.position.y = -1.05;
     ground.receiveShadow = true;
@@ -612,9 +634,17 @@ export const ThreeBoardScene: React.FC<ThreeBoardSceneProps> = ({
     diceMeshesRef.current = [die1, die2];
 
     // 8. Mouse Orbit, Raycasting & Click Handlers
+    const pointers = new Map<number, THREE.Vector2>();
+    let pinchDistance = 0;
     const handleMouseDown = (e: PointerEvent) => {
       if (liveRef.current.closeup || e.button !== 0) return;
-      dragDistanceRef.current = 0;
+      if (pointers.size === 0) dragDistanceRef.current = 0;
+      pointers.set(e.pointerId, new THREE.Vector2(e.clientX, e.clientY));
+      if (pointers.size === 2) {
+        const [a, b] = [...pointers.values()];
+        pinchDistance = a.distanceTo(b);
+        dragDistanceRef.current = 10;
+      }
       container.setPointerCapture(e.pointerId);
       isDraggingRef.current = true;
       previousMousePosition.current = { x: e.clientX, y: e.clientY };
@@ -622,6 +652,14 @@ export const ThreeBoardScene: React.FC<ThreeBoardSceneProps> = ({
 
     const handleMouseMove = (e: PointerEvent) => {
       if (liveRef.current.closeup) return;
+      if (pointers.has(e.pointerId)) pointers.set(e.pointerId, new THREE.Vector2(e.clientX, e.clientY));
+      if (pointers.size >= 2) {
+        const [a, b] = [...pointers.values()];
+        const distance = a.distanceTo(b);
+        if (pinchDistance > 0 && distance > 0) zoomCamera(pinchDistance / distance);
+        pinchDistance = distance;
+        return;
+      }
       // 1. Raycast hovered tile
       const rect = container.getBoundingClientRect();
       mouseCoordsRef.current.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
@@ -673,12 +711,21 @@ export const ThreeBoardScene: React.FC<ThreeBoardSceneProps> = ({
       cam.lookAt(cameraTargetRef.current);
     };
 
-    const handleMouseUp = () => {
-      isDraggingRef.current = false;
+    const handleMouseUp = (event: PointerEvent) => {
+      pointers.delete(event.pointerId);
+      pinchDistance = 0;
+      isDraggingRef.current = pointers.size > 0;
+      const remaining = [...pointers.values()][0];
+      if (remaining) previousMousePosition.current = { x: remaining.x, y: remaining.y };
+      if (container.hasPointerCapture(event.pointerId)) container.releasePointerCapture(event.pointerId);
+    };
+    const clearHover = () => {
+      setHoveredTile(null);
+      if (hoverHighlightMeshRef.current) hoverHighlightMeshRef.current.visible = false;
     };
 
     const handleClick = (e: MouseEvent) => {
-      if (liveRef.current.closeup || dragDistanceRef.current > 5 || !cameraRef.current || !onTileClick) return;
+      if (liveRef.current.closeup || dragDistanceRef.current > 5 || !cameraRef.current || !liveRef.current.onTileClick) return;
       const rect = container.getBoundingClientRect();
       const mouse = new THREE.Vector2(
         ((e.clientX - rect.left) / rect.width) * 2 - 1,
@@ -691,7 +738,7 @@ export const ThreeBoardScene: React.FC<ThreeBoardSceneProps> = ({
         const tile = hitMesh.tileData as BoardTile;
         if (tile) {
           playSound('hop');
-          onTileClick(tile);
+          liveRef.current.onTileClick?.(tile);
         }
       }
     };
@@ -711,6 +758,7 @@ export const ThreeBoardScene: React.FC<ThreeBoardSceneProps> = ({
     container.addEventListener('pointermove', handleMouseMove);
     container.addEventListener('pointerup', handleMouseUp);
     container.addEventListener('pointercancel', handleMouseUp);
+    container.addEventListener('pointerleave', clearHover);
     container.addEventListener('wheel', handleWheel, { passive: false });
 
     // 9. Resize Handler
@@ -818,6 +866,7 @@ export const ThreeBoardScene: React.FC<ThreeBoardSceneProps> = ({
       container.removeEventListener('pointermove', handleMouseMove);
       container.removeEventListener('pointerup', handleMouseUp);
       container.removeEventListener('pointercancel', handleMouseUp);
+      container.removeEventListener('pointerleave', clearHover);
       container.removeEventListener('wheel', handleWheel);
       window.removeEventListener('resize', handleResize);
       resizeObserver.disconnect();
@@ -828,6 +877,9 @@ export const ThreeBoardScene: React.FC<ThreeBoardSceneProps> = ({
           materials.forEach(material => material.dispose());
         }
       });
+      mainSun.shadow.map?.dispose();
+      environment.dispose();
+      crestTexture.dispose();
       renderer.dispose();
       tokensMapRef.current.clear();
       tokenAnimationRef.current.clear();
@@ -903,7 +955,7 @@ export const ThreeBoardScene: React.FC<ThreeBoardSceneProps> = ({
         const pedestal = new THREE.Mesh(
           new THREE.CylinderGeometry(0.22, 0.26, 0.06, 16),
           new THREE.MeshStandardMaterial({
-            color: 0xd97706,
+            color: 0xbba47b,
             metalness: 0.95,
             roughness: 0.2,
           })
@@ -1017,7 +1069,8 @@ export const ThreeBoardScene: React.FC<ThreeBoardSceneProps> = ({
   }, [cameraMode, cameraMode === 'focus' ? focusedPosition : null]);
 
   return (
-    <div className="relative w-full h-full flex flex-col items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-slate-950 via-stone-950 to-slate-950 shadow-2xl border-2 border-amber-900/40">
+    <div className="arena-classic-3d relative w-full h-full flex flex-col items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-slate-950 via-stone-950 to-slate-950 shadow-2xl border-2 border-amber-900/40">
+      {webglError && <div role="alert" className="arena-classic-error"><strong>Die 3D-Ansicht ist hier nicht verfügbar.</strong><p>Wechsle oben zu „2D“, um weiterzuspielen.</p></div>}
       {/* 3D Canvas Mount */}
       <div ref={mountRef} className="w-full h-full touch-none cursor-grab active:cursor-grabbing" />
 
@@ -1049,6 +1102,10 @@ export const ThreeBoardScene: React.FC<ThreeBoardSceneProps> = ({
         }}><RotateCcw size={14} /></button>
       </div>
 
+      <div className="arena-classic-zoom" role="group" aria-label="Brett vergrößern oder verkleinern">
+        <button aria-label="Vergrößern" title="Vergrößern" disabled={isDiceCloseup || webglError} onClick={() => zoomCamera(0.85)}><ZoomIn size={18} /></button>
+        <button aria-label="Verkleinern" title="Verkleinern" disabled={isDiceCloseup || webglError} onClick={() => zoomCamera(1.18)}><ZoomOut size={18} /></button>
+      </div>
       {hoveredTile && !isDiceCloseup && (
         <div className="board-inspector pointer-events-none">
           <span className="text-[9px] uppercase tracking-[0.18em] text-stone-400">Grundstück ansehen</span>
@@ -1066,7 +1123,7 @@ export const ThreeBoardScene: React.FC<ThreeBoardSceneProps> = ({
           <span>Deine Figur <span className="text-stone-500 mx-1">/</span> {BOARD_TILES[gameState.players.find(p => p.id === localPlayerId)?.position ?? 0]?.name}</span>
         </>}
       </div>
-      {!isDiceCloseup && <div className="board-navigation-hint pointer-events-none"><Move size={12} /> Ziehen zum Drehen <span>·</span> Scrollen zum Zoomen</div>}
+      {!isDiceCloseup && <div className="board-navigation-hint pointer-events-none"><Move size={12} /> Ziehen: drehen <span>·</span> Scrollen oder zwei Finger: zoomen</div>}
     </div>
   );
 };

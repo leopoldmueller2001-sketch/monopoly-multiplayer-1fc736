@@ -70,7 +70,7 @@ export const GameLog: React.FC<GameLogProps> = ({ logs, players, currentPlayerId
       {/* Header with filter tabs */}
       <div className="p-2.5 border-b border-slate-800 bg-slate-950/80 flex items-center justify-between shrink-0">
         <span className="text-[11px] font-black uppercase tracking-wider text-slate-300">
-          Live Arena Ticker
+          Spielverlauf
         </span>
         <div className="flex gap-1 p-0.5 bg-slate-900 rounded-lg border border-slate-800 text-[10px]">
           <button
@@ -79,7 +79,7 @@ export const GameLog: React.FC<GameLogProps> = ({ logs, players, currentPlayerId
               filter === 'all' ? 'bg-slate-800 text-white' : 'text-slate-400 hover:text-white'
             }`}
           >
-            All
+            Alle
           </button>
           <button
             onClick={() => setFilter('events')}
@@ -87,7 +87,7 @@ export const GameLog: React.FC<GameLogProps> = ({ logs, players, currentPlayerId
               filter === 'events' ? 'bg-slate-800 text-white' : 'text-slate-400 hover:text-white'
             }`}
           >
-            Events
+            Ereignisse
           </button>
           <button
             onClick={() => setFilter('chat')}

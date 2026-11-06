@@ -209,7 +209,7 @@ export default function App() {
           setCurrentPlayer(res.player);
           setView('LOBBY');
         } else {
-          triggerError(res.error || 'Failed to create room');
+          triggerError(res.error || 'Der Raum konnte nicht erstellt werden.');
         }
       }
     );
@@ -219,7 +219,7 @@ export default function App() {
   const handleJoinRoom = () => {
     if (!socket) return;
     if (!joinRoomCode.trim()) {
-      triggerError('Please enter a 4-letter Room Code');
+      triggerError('Gib den Raumcode aus deiner Einladung ein.');
       return;
     }
     playSound('click');
@@ -242,7 +242,7 @@ export default function App() {
             setView('LOBBY');
           }
         } else {
-          triggerError(res.error || 'Failed to join room');
+          triggerError(res.error || 'Der Beitritt ist fehlgeschlagen. Prüfe den Raumcode.');
         }
       }
     );
@@ -277,7 +277,7 @@ export default function App() {
             });
           });
         } else {
-          triggerError(res.error || 'Could not start quick match');
+          triggerError(res.error || 'Das Schnellspiel konnte nicht gestartet werden.');
         }
       }
     );
@@ -290,8 +290,11 @@ export default function App() {
   };
 
   const handleUpdateProfile = (token: PlayerToken, color: string, name: string) => {
-    if (!socket || !lobbyData) return;
-    socket.emit('lobby:update_player', { roomId: lobbyData.roomId, token, color, name });
+    if (!socket || !lobbyData) return Promise.resolve(false);
+    return new Promise<boolean>(resolve => socket.emit('lobby:update_player', { roomId: lobbyData.roomId, token, color, name }, (result: any) => {
+      if (!result.success) triggerError(result.error || 'Dein Profil konnte nicht gespeichert werden.');
+      resolve(Boolean(result.success));
+    }));
   };
 
   const handleUpdateSettings = (settings: { maxPlayers: number; turnSeconds: number; boardSize?: number }) => {
@@ -313,7 +316,7 @@ export default function App() {
     if (!socket || !lobbyData) return;
     socket.emit('game:start', { roomId: lobbyData.roomId }, (res: any) => {
       if (res && !res.success) {
-        triggerError(res.error || 'Failed to start game');
+        triggerError(res.error || 'Die Runde konnte nicht gestartet werden.');
       }
     });
   };
@@ -428,7 +431,7 @@ export default function App() {
 
   return (
     <div
-      className="arena-materials arena-editorial app-shell overflow-hidden bg-slate-950 text-slate-100 flex flex-col font-sans select-none selection:bg-amber-500 selection:text-slate-950 relative"
+      className="arena-materials arena-editorial arena-glass arena-apple app-shell overflow-hidden bg-slate-950 text-slate-100 flex flex-col font-sans select-none selection:bg-amber-500 selection:text-slate-950 relative"
       style={{
         backgroundImage: `linear-gradient(to bottom, rgba(6, 9, 18, 0.88), rgba(6, 9, 18, 0.95)), url(${ASSETS.penthouseBg})`,
         backgroundSize: 'cover',
@@ -440,8 +443,13 @@ export default function App() {
       {/* Screen 1: MAIN MENU (Maximized Visual Presentation) */}
       {view === 'MENU' && (
         <div className="arena-menu flex-1 overflow-y-auto">
+          <nav className="arena-apple-nav" aria-label="Startseite">
+            <a href="#arena-welcome" className="arena-apple-brand"><Crown size={19} aria-hidden="true" /> Monopoly<span>Arena</span></a>
+            <span className="arena-apple-nav-detail">Das Brettspiel. Zusammen im Browser.</span>
+            <a className="arena-apple-nav-action" href="#arena-profile">Jetzt spielen <ArrowRight size={14} aria-hidden="true" /></a>
+          </nav>
           <ArenaIntro />
-          <div className="arena-profile w-full max-w-lg bg-slate-900/90 border border-slate-800 rounded-3xl p-6 md:p-8 shadow-2xl relative overflow-hidden backdrop-blur-md">
+          <div id="arena-profile" tabIndex={-1} className="arena-profile w-full max-w-lg bg-slate-900/90 border border-slate-800 rounded-3xl p-6 md:p-8 shadow-2xl relative overflow-hidden backdrop-blur-md">
             <div className="arena-profile-heading">
               <span className="arena-kicker">DEIN PLATZ AM TISCH</span>
               <h1>Spielst du mit?</h1>
@@ -580,7 +588,7 @@ export default function App() {
 
       {/* Screen 2: LOBBY */}
       {view === 'LOBBY' && lobbyData && currentPlayer && (
-        <div className="flex-1 flex items-center justify-center p-4 overflow-y-auto">
+        <div className="arena-lobby-scroll flex-1 flex items-start justify-center p-4 overflow-y-auto min-h-0">
           <Lobby
             lobby={lobbyData}
             currentPlayer={currentPlayer}
